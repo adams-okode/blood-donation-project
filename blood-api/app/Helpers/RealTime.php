@@ -2,18 +2,20 @@
 
 namespace App\Helpers;
 
+use App\Events\PusherEvent;
 use Illuminate\Support\Facades\App;
 
 class RealTime
 {
-    
-    public static $pusher;
 
-    const GENERAL_NOTIFICATION = 'GENERAL_NOTIFICATION';
+    public $pusher;
+
+    const NEW_REQUEST_NOTIFICATION = 'NEW_REQUEST_NOTIFICATION';
+    const ACCEPTANCE_REQUEST_NOTIFICATION = 'ACCEPTANCE_REQUEST_NOTIFICATION';
 
     public function __construct()
     {
-        self::$pusher = App::make('pusher');
+
     }
 
     /**
@@ -21,19 +23,33 @@ class RealTime
      * @param $data
      * @return boolean $response
      */
-    public static function sendNotification(String $channel, array $data)
+    public function sendNotification(String $channel, array $data)
     {
         $response = true;
         try {
-
-            self::$pusher->trigger(
-                "{$channel}",
-                self::GENERAL_NOTIFICATION,
-                $data
-            );
+            event(new PusherEvent($channel, self::NEW_REQUEST_NOTIFICATION, $data));
             return $response;
         } catch (\Throwable $th) {
             //throw $th;
+            // \Log::error($th->getMessage());
+            return $response = false;
+        }
+    }
+
+    /**
+     * @param $chanel
+     * @param $data
+     * @return boolean $response
+     */
+    public function sendAcceptanceNotification(String $channel, array $data)
+    {
+        $response = true;
+        try {
+            event(new PusherEvent($channel, self::ACCEPTANCE_REQUEST_NOTIFICATION, $data));
+            return $response;
+        } catch (\Throwable $th) {
+            //throw $th;
+            // \Log::error($th->getMessage());
             return $response = false;
         }
     }

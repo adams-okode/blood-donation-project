@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BloodGroup;
 use App\Person;
 use App\Token;
 use App\User;
@@ -145,8 +146,8 @@ class PersonController extends Controller
     /**
      * Set Blood Group
      *
-     * @bodyParam email string required
-     * @bodyParam password string required
+     * @pathParam id int required Users id
+     * @bodyParam bloodGroup string required
      *
      * @param $request
      * @return $response
@@ -166,7 +167,30 @@ class PersonController extends Controller
      */
     public function setBloodGroup($id, Request $request)
     {
+        $user = User::where('id', $id)->first();
+        if (BloodGroup::where('person_id', $user->person->id)->exists()) {
+            BloodGroup::where('person_id', $user->person->id)->update([
+                'group' => $request->bloodGroup,
+            ]);
+            return \Response::json([
+                "message" => "status",
+                "status_code" => 200,
+                "data" => $user->toArray(),
+            ]);
+        } else {
+            $bloodGroup = new BloodGroup();
+            $bloodGroup->person_id = $user->person->id;
+            $bloodGroup->group = $request->bloodGroup;
+            $bloodGroup->save();
+            return \Response::json([
+                "message" => "status",
+                "status_code" => 200,
+                "data" => $bloodGroup->toArray(),
+            ]);
+        }
 
     }
+
+    
 
 }
