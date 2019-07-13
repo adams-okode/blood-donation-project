@@ -17,7 +17,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Route::get('testBloodGroup/{group}', 'PersonController@testBloodGroup');
+
 Route::post('createUser', 'PersonController@createUser');
 Route::post('authenticateUser', 'PersonController@authenticateUser');
 
